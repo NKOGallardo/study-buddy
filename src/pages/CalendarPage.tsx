@@ -46,24 +46,25 @@ const CalendarPage = () => {
     : [];
 
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="space-y-4 sm:space-y-6 animate-fade-up">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Calendar</h1>
-        <p className="text-muted-foreground mt-1">View your study history</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">Calendar</h1>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">View your study history</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Calendar */}
         <Card className="shadow-notion border-border/50 lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg font-semibold">
+          <CardHeader className="flex flex-row items-center justify-between p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg font-semibold">
               {format(currentMonth, 'MMMM yyyy')}
             </CardTitle>
-            <div className="flex gap-2">
+            <div className="flex gap-1 sm:gap-2">
               <Button
                 variant="ghost"
                 size="icon"
+                className="h-8 w-8 sm:h-9 sm:w-9"
                 onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -71,27 +72,29 @@ const CalendarPage = () => {
               <Button
                 variant="ghost"
                 size="icon"
+                className="h-8 w-8 sm:h-9 sm:w-9"
                 onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-2 sm:p-6 pt-0 sm:pt-0">
             {/* Day headers */}
-            <div className="grid grid-cols-7 gap-1 mb-2">
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+            <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-1 sm:mb-2">
+              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
                 <div
-                  key={day}
-                  className="text-center text-sm font-medium text-muted-foreground py-2"
+                  key={`${day}-${i}`}
+                  className="text-center text-xs sm:text-sm font-medium text-muted-foreground py-1 sm:py-2"
                 >
-                  {day}
+                  <span className="sm:hidden">{day}</span>
+                  <span className="hidden sm:inline">{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]}</span>
                 </div>
               ))}
             </div>
 
             {/* Calendar grid */}
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
               {days.map((day) => {
                 const daySessions = getSessionsForDay(day);
                 const totalMinutes = getTotalMinutesForDay(day);
@@ -110,17 +113,17 @@ const CalendarPage = () => {
                     key={day.toISOString()}
                     onClick={() => setSelectedDate(day)}
                     className={cn(
-                      'aspect-square p-1 rounded-lg flex flex-col items-center justify-start transition-all',
+                      'aspect-square p-0.5 sm:p-1 rounded-md sm:rounded-lg flex flex-col items-center justify-start transition-all min-h-[36px] sm:min-h-[48px]',
                       !isCurrentMonth && 'opacity-30',
-                      isToday && 'ring-2 ring-primary',
+                      isToday && 'ring-1 sm:ring-2 ring-primary',
                       isSelected && 'bg-primary text-primary-foreground',
                       !isSelected && intensity,
                       !isSelected && 'hover:bg-muted'
                     )}
                   >
-                    <span className="text-sm font-medium">{format(day, 'd')}</span>
+                    <span className="text-xs sm:text-sm font-medium">{format(day, 'd')}</span>
                     {daySessions.length > 0 && !isSelected && (
-                      <div className="flex gap-0.5 mt-1 flex-wrap justify-center">
+                      <div className="hidden sm:flex gap-0.5 mt-1 flex-wrap justify-center">
                         {daySessions.slice(0, 3).map((session) => {
                           const subject = SUBJECTS.find((s) => s.id === session.subject);
                           return (
@@ -135,6 +138,9 @@ const CalendarPage = () => {
                           </span>
                         )}
                       </div>
+                    )}
+                    {daySessions.length > 0 && !isSelected && (
+                      <div className="sm:hidden w-1.5 h-1.5 rounded-full bg-primary mt-0.5" />
                     )}
                   </button>
                 );

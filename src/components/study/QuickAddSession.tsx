@@ -55,17 +55,17 @@ export function QuickAddSession({ defaultSubject }: QuickAddSessionProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2 shadow-notion hover:shadow-notion-hover transition-shadow">
+        <Button className="gap-2 shadow-notion hover:shadow-notion-hover transition-shadow w-full sm:w-auto">
           <Plus className="h-4 w-4" />
-          Quick Add Session
+          <span className="sm:inline">Quick Add Session</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-w-[95vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Study Session</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="date">Date</Label>
               <Input
@@ -108,7 +108,7 @@ export function QuickAddSession({ defaultSubject }: QuickAddSessionProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="duration">Duration (minutes)</Label>
+              <Label htmlFor="duration">Duration (min)</Label>
               <Input
                 id="duration"
                 type="number"

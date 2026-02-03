@@ -59,16 +59,16 @@ const SubjectPage = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="space-y-4 sm:space-y-6 animate-fade-up">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <span className="text-4xl">{subject.icon}</span>
-          <div>
-            <h1 className={cn("text-3xl font-bold", SUBJECT_TEXT_COLORS[subject.id as Subject])}>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <span className="text-3xl sm:text-4xl">{subject.icon}</span>
+          <div className="min-w-0 flex-1">
+            <h1 className={cn("text-2xl sm:text-3xl font-bold truncate", SUBJECT_TEXT_COLORS[subject.id as Subject])}>
               {subject.name}
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-muted-foreground text-sm sm:text-base mt-0.5 sm:mt-1">
               {weeklyHours.toFixed(1)}h / {goal}h this week ({progress.toFixed(0)}%)
             </p>
           </div>
@@ -169,7 +169,7 @@ const SubjectPage = () => {
         </Card>
       </div>
 
-      {/* Study Sessions Table */}
+      {/* Study Sessions */}
       <Card className="shadow-notion border-border/50">
         <CardHeader>
           <CardTitle className="text-base font-medium">📊 Study Sessions</CardTitle>
@@ -181,64 +181,116 @@ const SubjectPage = () => {
               <p className="text-sm mt-1">Add your first session to start tracking!</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Topic</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead>Difficulty</TableHead>
-                    <TableHead>Mood</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="w-12"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sessions.map((session) => (
-                    <TableRow key={session.id}>
-                      <TableCell className="font-medium">
-                        {format(new Date(session.date), 'MMM d, yyyy')}
-                      </TableCell>
-                      <TableCell>{session.topic}</TableCell>
-                      <TableCell>{session.duration} min</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="secondary"
-                          className={cn(
-                            session.difficulty === 'easy' && 'bg-green-100 text-green-700',
-                            session.difficulty === 'medium' && 'bg-yellow-100 text-yellow-700',
-                            session.difficulty === 'hard' && 'bg-red-100 text-red-700'
-                          )}
-                        >
-                          {session.difficulty}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
+            <>
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Topic</TableHead>
+                      <TableHead>Duration</TableHead>
+                      <TableHead>Difficulty</TableHead>
+                      <TableHead>Mood</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="w-12"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sessions.map((session) => (
+                      <TableRow key={session.id}>
+                        <TableCell className="font-medium">
+                          {format(new Date(session.date), 'MMM d, yyyy')}
+                        </TableCell>
+                        <TableCell>{session.topic}</TableCell>
+                        <TableCell>{session.duration} min</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="secondary"
+                            className={cn(
+                              session.difficulty === 'easy' && 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+                              session.difficulty === 'medium' && 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+                              session.difficulty === 'hard' && 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                            )}
+                          >
+                            {session.difficulty}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {session.mood === 'good' && '😊'}
+                          {session.mood === 'tired' && '😴'}
+                          {session.mood === 'stressed' && '😰'}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={session.status === 'done' ? 'default' : 'secondary'}>
+                            {session.status === 'done' ? '✅ Done' : '🔄 In Progress'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => deleteSession(session.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Cards */}
+              <div className="md:hidden space-y-3">
+                {sessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className="p-4 rounded-lg bg-muted/30 space-y-2"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium">{session.topic}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {format(new Date(session.date), 'MMM d, yyyy')}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 -mt-1 -mr-2"
+                        onClick={() => deleteSession(session.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="outline">{session.duration} min</Badge>
+                      <Badge
+                        variant="secondary"
+                        className={cn(
+                          'text-xs',
+                          session.difficulty === 'easy' && 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+                          session.difficulty === 'medium' && 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+                          session.difficulty === 'hard' && 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                        )}
+                      >
+                        {session.difficulty}
+                      </Badge>
+                      <span>
                         {session.mood === 'good' && '😊'}
                         {session.mood === 'tired' && '😴'}
                         {session.mood === 'stressed' && '😰'}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={session.status === 'done' ? 'default' : 'secondary'}>
-                          {session.status === 'done' ? '✅ Done' : '🔄 In Progress'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => deleteSession(session.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                      </span>
+                      <Badge variant={session.status === 'done' ? 'default' : 'secondary'} className="text-xs">
+                        {session.status === 'done' ? '✅ Done' : '🔄 Progress'}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
