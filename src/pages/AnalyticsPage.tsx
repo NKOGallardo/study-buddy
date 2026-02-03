@@ -96,54 +96,55 @@ const AnalyticsPage = () => {
       : 0;
 
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="space-y-4 sm:space-y-6 animate-fade-up">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Analytics</h1>
-        <p className="text-muted-foreground mt-1">Insights into your study habits</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">Analytics</h1>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">Insights into your study habits</p>
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <Card className="shadow-notion border-border/50">
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Total Study Time</p>
-            <p className="text-3xl font-bold mt-1">{totalHours.toFixed(1)}h</p>
+          <CardContent className="pt-4 sm:pt-6 pb-4">
+            <p className="text-xs sm:text-sm text-muted-foreground">Total Study Time</p>
+            <p className="text-2xl sm:text-3xl font-bold mt-1">{totalHours.toFixed(1)}h</p>
           </CardContent>
         </Card>
         <Card className="shadow-notion border-border/50">
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Most Studied This Week</p>
-            <p className="text-3xl font-bold mt-1">{mostStudied?.name || 'None'}</p>
+          <CardContent className="pt-4 sm:pt-6 pb-4">
+            <p className="text-xs sm:text-sm text-muted-foreground">Most Studied This Week</p>
+            <p className="text-2xl sm:text-3xl font-bold mt-1 truncate">{mostStudied?.name || 'None'}</p>
           </CardContent>
         </Card>
         <Card className="shadow-notion border-border/50">
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">Avg Session Length</p>
-            <p className="text-3xl font-bold mt-1">{avgSessionLength.toFixed(0)} min</p>
+          <CardContent className="pt-4 sm:pt-6 pb-4">
+            <p className="text-xs sm:text-sm text-muted-foreground">Avg Session Length</p>
+            <p className="text-2xl sm:text-3xl font-bold mt-1">{avgSessionLength.toFixed(0)} min</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Weekly Hours by Subject */}
         <Card className="shadow-notion border-border/50">
-          <CardHeader>
-            <CardTitle className="text-base font-medium">Weekly Hours by Subject</CardTitle>
+          <CardHeader className="pb-2 sm:pb-4">
+            <CardTitle className="text-sm sm:text-base font-medium">Weekly Hours by Subject</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px]">
+            <div className="h-[250px] sm:h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weeklyData} layout="vertical">
+                <BarChart data={weeklyData} layout="vertical" margin={{ left: -10, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                  <XAxis type="number" unit="h" />
-                  <YAxis type="category" dataKey="name" width={100} />
+                  <XAxis type="number" unit="h" tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 11 }} />
                   <Tooltip
                     formatter={(value: number) => [`${value.toFixed(1)}h`, 'Hours']}
                     contentStyle={{
                       backgroundColor: 'hsl(var(--background))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
+                      fontSize: '12px',
                     }}
                   />
                   <Bar dataKey="hours" radius={[0, 4, 4, 0]}>
@@ -159,11 +160,11 @@ const AnalyticsPage = () => {
 
         {/* Time Distribution */}
         <Card className="shadow-notion border-border/50">
-          <CardHeader>
-            <CardTitle className="text-base font-medium">Time Distribution</CardTitle>
+          <CardHeader className="pb-2 sm:pb-4">
+            <CardTitle className="text-sm sm:text-base font-medium">Time Distribution</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px]">
+            <div className="h-[250px] sm:h-[300px]">
               {totalBySubject.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -171,8 +172,8 @@ const AnalyticsPage = () => {
                       data={totalBySubject}
                       cx="50%"
                       cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
+                      innerRadius={40}
+                      outerRadius={70}
                       paddingAngle={2}
                       dataKey="value"
                     >
@@ -186,13 +187,14 @@ const AnalyticsPage = () => {
                         backgroundColor: 'hsl(var(--background))',
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
+                        fontSize: '12px',
                       }}
                     />
-                    <Legend />
+                    <Legend wrapperStyle={{ fontSize: '12px' }} />
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-full flex items-center justify-center text-muted-foreground">
+                <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
                   No data yet
                 </div>
               )}
@@ -202,22 +204,23 @@ const AnalyticsPage = () => {
 
         {/* Daily Study Time */}
         <Card className="shadow-notion border-border/50">
-          <CardHeader>
-            <CardTitle className="text-base font-medium">Daily Study Time (Last 7 Days)</CardTitle>
+          <CardHeader className="pb-2 sm:pb-4">
+            <CardTitle className="text-sm sm:text-base font-medium">Daily Study Time (Last 7 Days)</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px]">
+            <div className="h-[250px] sm:h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={dailyData}>
+                <BarChart data={dailyData} margin={{ left: -15, right: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="date" />
-                  <YAxis unit="h" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                  <YAxis unit="h" tick={{ fontSize: 11 }} />
                   <Tooltip
                     formatter={(value: number) => [`${value.toFixed(1)}h`, 'Hours']}
                     contentStyle={{
                       backgroundColor: 'hsl(var(--background))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
+                      fontSize: '12px',
                     }}
                   />
                   <Bar dataKey="hours" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
@@ -229,25 +232,26 @@ const AnalyticsPage = () => {
 
         {/* Performance Trend */}
         <Card className="shadow-notion border-border/50">
-          <CardHeader>
-            <CardTitle className="text-base font-medium">Performance Trend</CardTitle>
+          <CardHeader className="pb-2 sm:pb-4">
+            <CardTitle className="text-sm sm:text-base font-medium">Performance Trend</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px]">
+            <div className="h-[250px] sm:h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={performanceData}>
+                <LineChart data={performanceData} margin={{ left: -15, right: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis yAxisId="left" domain={[0, 3]} ticks={[1, 2, 3]} />
-                  <YAxis yAxisId="right" orientation="right" domain={[0, 100]} unit="%" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                  <YAxis yAxisId="left" domain={[0, 3]} ticks={[1, 2, 3]} tick={{ fontSize: 11 }} />
+                  <YAxis yAxisId="right" orientation="right" domain={[0, 100]} unit="%" tick={{ fontSize: 11 }} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: 'hsl(var(--background))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
+                      fontSize: '12px',
                     }}
                   />
-                  <Legend />
+                  <Legend wrapperStyle={{ fontSize: '11px' }} />
                   <Line
                     yAxisId="left"
                     type="monotone"

@@ -5,12 +5,12 @@ import { QuickAddSession } from '@/components/study/QuickAddSession';
 
 const Dashboard = () => {
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="space-y-4 sm:space-y-6 animate-fade-up">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Track your study progress</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">Track your study progress</p>
         </div>
         <QuickAddSession />
       </div>
@@ -19,7 +19,7 @@ const Dashboard = () => {
       <StatsCards />
 
       {/* Main content grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <SubjectProgress />
         <RecentActivity />
       </div>

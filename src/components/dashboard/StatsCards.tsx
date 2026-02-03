@@ -52,22 +52,22 @@ export function StatsCards() {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {stats.map((stat, index) => (
         <Card 
           key={stat.title} 
           className="shadow-notion border-border/50 hover:shadow-notion-hover transition-shadow animate-fade-up"
           style={{ animationDelay: `${index * 50}ms` }}
         >
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                <p className="text-2xl font-bold mt-1">{stat.value}</p>
-                <p className="text-xs text-muted-foreground mt-1">{stat.subtitle}</p>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">{stat.title}</p>
+                <p className="text-xl sm:text-2xl font-bold mt-1 truncate">{stat.value}</p>
+                <p className="text-xs text-muted-foreground mt-1 truncate">{stat.subtitle}</p>
               </div>
-              <div className={`p-3 rounded-xl ${stat.color}`}>
-                <stat.icon className="h-5 w-5" />
+              <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl ${stat.color} flex-shrink-0`}>
+                <stat.icon className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
             </div>
           </CardContent>

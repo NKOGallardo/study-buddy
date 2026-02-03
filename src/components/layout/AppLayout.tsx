@@ -23,20 +23,20 @@ export function AppLayout() {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
-        <SidebarInset className="flex-1 flex flex-col">
+        <SidebarInset className="flex-1 flex flex-col min-w-0">
           {/* Top bar */}
-          <header className="h-14 border-b border-border flex items-center px-4 gap-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-            <SidebarTrigger className="p-2 hover:bg-accent rounded-lg transition-colors">
+          <header className="h-12 sm:h-14 border-b border-border flex items-center px-3 sm:px-4 gap-2 sm:gap-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+            <SidebarTrigger className="p-2 hover:bg-accent rounded-lg transition-colors flex-shrink-0">
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
-            <p className="text-sm text-muted-foreground italic truncate flex-1">
+            <p className="text-xs sm:text-sm text-muted-foreground italic truncate flex-1 min-w-0">
               "{getRandomQuote()}"
             </p>
           </header>
 
           {/* Main content */}
           <main className="flex-1 overflow-auto">
-            <div className="container max-w-6xl mx-auto p-6">
+            <div className="container max-w-6xl mx-auto p-3 sm:p-6">
               <Outlet />
             </div>
           </main>

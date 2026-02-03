@@ -56,17 +56,17 @@ const PomodoroPage = () => {
     : ((BREAK_DURATION - timeLeft) / BREAK_DURATION) * 100;
 
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="space-y-4 sm:space-y-6 animate-fade-up">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Pomodoro Timer</h1>
-        <p className="text-muted-foreground mt-1">Stay focused with the Pomodoro Technique</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">Pomodoro Timer</h1>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">Stay focused with the Pomodoro Technique</p>
       </div>
 
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] sm:min-h-[60vh]">
         <Card className="shadow-notion border-border/50 w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="flex justify-center gap-2 mb-4">
+          <CardHeader className="text-center pb-2 sm:pb-4">
+            <div className="flex justify-center gap-2 mb-3 sm:mb-4">
               <Button
                 variant={mode === 'work' ? 'default' : 'ghost'}
                 onClick={() => {
@@ -74,7 +74,8 @@ const PomodoroPage = () => {
                   setTimeLeft(WORK_DURATION);
                   setIsRunning(false);
                 }}
-                className="gap-2"
+                className="gap-1 sm:gap-2 text-sm"
+                size="sm"
               >
                 <Brain className="h-4 w-4" />
                 Focus
@@ -86,83 +87,84 @@ const PomodoroPage = () => {
                   setTimeLeft(BREAK_DURATION);
                   setIsRunning(false);
                 }}
-                className="gap-2"
+                className="gap-1 sm:gap-2 text-sm"
+                size="sm"
               >
                 <Coffee className="h-4 w-4" />
                 Break
               </Button>
             </div>
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
               {mode === 'work' ? 'Focus Time' : 'Break Time'}
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-center space-y-8">
+          <CardContent className="text-center space-y-6 sm:space-y-8 pb-6">
             {/* Timer display */}
             <div className="relative inline-flex items-center justify-center">
-              <svg className="w-64 h-64 transform -rotate-90">
+              <svg className="w-48 h-48 sm:w-64 sm:h-64 transform -rotate-90">
                 <circle
-                  cx="128"
-                  cy="128"
-                  r="120"
+                  cx="50%"
+                  cy="50%"
+                  r="45%"
                   stroke="hsl(var(--muted))"
                   strokeWidth="8"
                   fill="none"
                 />
                 <circle
-                  cx="128"
-                  cy="128"
-                  r="120"
+                  cx="50%"
+                  cy="50%"
+                  r="45%"
                   stroke={mode === 'work' ? 'hsl(var(--primary))' : 'hsl(var(--success))'}
                   strokeWidth="8"
                   fill="none"
-                  strokeDasharray={2 * Math.PI * 120}
-                  strokeDashoffset={2 * Math.PI * 120 * (1 - progress / 100)}
+                  strokeDasharray="283"
+                  strokeDashoffset={283 * (1 - progress / 100)}
                   strokeLinecap="round"
                   className="transition-all duration-1000"
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-6xl font-bold tabular-nums">
+                <span className="text-4xl sm:text-6xl font-bold tabular-nums">
                   {formatTime(timeLeft)}
                 </span>
               </div>
             </div>
 
             {/* Controls */}
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-3 sm:gap-4">
               <Button
                 variant="outline"
                 size="icon"
                 onClick={resetTimer}
-                className="h-12 w-12 rounded-full"
+                className="h-10 w-10 sm:h-12 sm:w-12 rounded-full"
               >
-                <RotateCcw className="h-5 w-5" />
+                <RotateCcw className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
               <Button
                 size="lg"
                 onClick={() => setIsRunning(!isRunning)}
                 className={cn(
-                  "h-16 w-16 rounded-full text-lg",
+                  "h-14 w-14 sm:h-16 sm:w-16 rounded-full text-lg",
                   mode === 'break' && "bg-success hover:bg-success/90"
                 )}
               >
-                {isRunning ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 ml-1" />}
+                {isRunning ? <Pause className="h-5 w-5 sm:h-6 sm:w-6" /> : <Play className="h-5 w-5 sm:h-6 sm:w-6 ml-1" />}
               </Button>
-              <div className="h-12 w-12" /> {/* Spacer for symmetry */}
+              <div className="h-10 w-10 sm:h-12 sm:w-12" /> {/* Spacer for symmetry */}
             </div>
 
             {/* Sessions count */}
-            <div className="text-sm text-muted-foreground">
+            <div className="text-xs sm:text-sm text-muted-foreground">
               <span className="font-medium text-foreground">{sessions}</span> pomodoro sessions completed today
             </div>
           </CardContent>
         </Card>
 
         {/* Tips */}
-        <Card className="shadow-notion border-border/50 w-full max-w-md mt-6">
-          <CardContent className="pt-6">
-            <h3 className="font-medium mb-3">💡 How it works</h3>
-            <ul className="text-sm text-muted-foreground space-y-2">
+        <Card className="shadow-notion border-border/50 w-full max-w-md mt-4 sm:mt-6">
+          <CardContent className="pt-4 sm:pt-6 pb-4">
+            <h3 className="font-medium mb-2 sm:mb-3 text-sm sm:text-base">💡 How it works</h3>
+            <ul className="text-xs sm:text-sm text-muted-foreground space-y-1 sm:space-y-2">
               <li>1. Focus on your task for 25 minutes</li>
               <li>2. Take a 5-minute break</li>
               <li>3. After 4 sessions, take a longer break</li>

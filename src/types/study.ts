@@ -39,6 +39,17 @@ export interface WeeklyGoals {
   zulu: number;
 }
 
+// Study Reminders
+export interface StudyReminder {
+  id: string;
+  subject: Subject | 'any';
+  time: string; // HH:MM format
+  days: number[]; // 0 = Sunday, 1 = Monday, etc.
+  message: string;
+  enabled: boolean;
+  createdAt: string;
+}
+
 export const SUBJECTS: { id: Subject; name: string; icon: string; color: string }[] = [
   { id: 'physics', name: 'Physics', icon: '⚛️', color: 'physics' },
   { id: 'math', name: 'Math', icon: '📐', color: 'math' },
@@ -65,3 +76,13 @@ export const SUBJECT_TEXT_COLORS: Record<Subject, string> = {
   english: 'text-english',
   zulu: 'text-zulu',
 };
+
+export const DAYS_OF_WEEK = [
+  { value: 0, label: 'Sun', full: 'Sunday' },
+  { value: 1, label: 'Mon', full: 'Monday' },
+  { value: 2, label: 'Tue', full: 'Tuesday' },
+  { value: 3, label: 'Wed', full: 'Wednesday' },
+  { value: 4, label: 'Thu', full: 'Thursday' },
+  { value: 5, label: 'Fri', full: 'Friday' },
+  { value: 6, label: 'Sat', full: 'Saturday' },
+];
