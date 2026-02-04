@@ -28,7 +28,7 @@ import { cn } from '@/lib/utils';
 const subjectIcons: Record<Subject, string> = {
   physics: '⚛️',
   math: '📐',
-  electronics: '💡',
+  electronics: '🔧',
   chemistry: '🧪',
   english: '📚',
   zulu: '🌍',
@@ -174,10 +174,22 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
         {!isCollapsed && (
-          <SidebarTrigger className="mt-2 w-full justify-start px-4 py-2 text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-lg">
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            <span>Collapse</span>
-          </SidebarTrigger>
+          <>
+            <SidebarTrigger className="mt-2 w-full justify-start px-4 py-2 text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-lg">
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              <span>Collapse</span>
+            </SidebarTrigger>
+            <div className="mt-4 pt-3 border-t border-sidebar-border">
+              <a 
+                href="https://nkogallardo.link" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Created by NKOgallardo.link
+              </a>
+            </div>
+          </>
         )}
       </SidebarFooter>
     </Sidebar>
