@@ -7,8 +7,10 @@ import {
   ChevronLeft,
   Search,
   Timer,
+  LogOut,
 } from 'lucide-react';
 import { SUBJECTS, Subject } from '@/types/study';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   Sidebar,
   SidebarContent,
@@ -24,6 +26,8 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const subjectIcons: Record<Subject, string> = {
   physics: '⚛️',
@@ -48,7 +52,10 @@ const toolsItems = [
 export function AppSidebar() {
   const location = useLocation();
   const { state } = useSidebar();
+  const { user, signOut } = useAuth();
   const isCollapsed = state === 'collapsed';
+
+  const userInitials = user?.email?.slice(0, 2).toUpperCase() || 'U';
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -153,6 +160,22 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border">
+        {/* User Info */}
+        {!isCollapsed && user && (
+          <div className="flex items-center gap-3 px-2 py-2 mb-2">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                {userInitials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-sidebar-foreground truncate">
+                {user.email}
+              </p>
+            </div>
+          </div>
+        )}
+
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
@@ -172,7 +195,22 @@ export function AppSidebar() {
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
+
+          {/* Logout Button */}
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Button
+                variant="ghost"
+                onClick={signOut}
+                className="w-full justify-start gap-3 px-4 py-2 h-auto text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive"
+              >
+                <LogOut className="h-4 w-4 flex-shrink-0" />
+                {!isCollapsed && <span>Logout</span>}
+              </Button>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
+
         {!isCollapsed && (
           <>
             <SidebarTrigger className="mt-2 w-full justify-start px-4 py-2 text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-lg">
