@@ -53,7 +53,7 @@ export interface StudyReminder {
 export const SUBJECTS: { id: Subject; name: string; icon: string; color: string }[] = [
   { id: 'physics', name: 'Physics', icon: '⚛️', color: 'physics' },
   { id: 'math', name: 'Math', icon: '📐', color: 'math' },
-  { id: 'electronics', name: 'Electronics', icon: '💡', color: 'electronics' },
+  { id: 'electronics', name: 'Trade', icon: '🔧', color: 'electronics' },
   { id: 'chemistry', name: 'Chemistry', icon: '🧪', color: 'chemistry' },
   { id: 'english', name: 'English', icon: '📚', color: 'english' },
   { id: 'zulu', name: 'Zulu', icon: '🌍', color: 'zulu' },
