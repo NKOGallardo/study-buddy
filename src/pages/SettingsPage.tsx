@@ -21,7 +21,13 @@ import { useReminders } from '@/hooks/useReminders';
 import { SUBJECTS, Subject } from '@/types/study';
 import { ReminderDialog } from '@/components/reminders/ReminderDialog';
 import { ReminderList } from '@/components/reminders/ReminderList';
-import { Download, Trash2, Moon, Sun, Bell, BellRing, Copy, ClipboardPaste, Smartphone } from 'lucide-react';
+import { Download, Trash2, Moon, Sun, Bell, BellRing, Copy, ClipboardPaste, Smartphone, Share2, MessageCircle, Mail, Send } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -226,6 +232,55 @@ const SettingsPage = () => {
                 <Copy className="h-4 w-4" />
                 Copy My Data
               </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2 flex-1">
+                    <Share2 className="h-4 w-4" />
+                    Share Data
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => {
+                    const data = exportData();
+                    const text = encodeURIComponent(data);
+                    window.open(`https://wa.me/?text=${text}`, '_blank');
+                  }}>
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    WhatsApp
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => {
+                    const data = exportData();
+                    const text = encodeURIComponent(data);
+                    window.open(`https://t.me/share/url?text=${text}`, '_blank');
+                  }}>
+                    <Send className="h-4 w-4 mr-2" />
+                    Telegram
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => {
+                    const data = exportData();
+                    const subject = encodeURIComponent('StudyTrack Data Export');
+                    const body = encodeURIComponent(data);
+                    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+                  }}>
+                    <Mail className="h-4 w-4 mr-2" />
+                    Email
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={async () => {
+                    const data = exportData();
+                    if (navigator.share) {
+                      try {
+                        await navigator.share({ title: 'StudyTrack Data', text: data });
+                      } catch { /* user cancelled */ }
+                    } else {
+                      navigator.clipboard.writeText(data);
+                      toast.success('Data copied to clipboard!');
+                    }
+                  }}>
+                    <Share2 className="h-4 w-4 mr-2" />
+                    More...
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <Textarea
