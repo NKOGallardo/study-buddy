@@ -21,11 +21,13 @@ import { useReminders } from '@/hooks/useReminders';
 import { SUBJECTS, Subject } from '@/types/study';
 import { ReminderDialog } from '@/components/reminders/ReminderDialog';
 import { ReminderList } from '@/components/reminders/ReminderList';
-import { Download, Trash2, Moon, Sun, Bell, BellRing } from 'lucide-react';
+import { Download, Trash2, Moon, Sun, Bell, BellRing, Copy, ClipboardPaste, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
+import { Textarea } from '@/components/ui/textarea';
 
 const SettingsPage = () => {
-  const { weeklyGoals, updateWeeklyGoal, resetAllData, exportToCSV } = useStudy();
+  const { weeklyGoals, updateWeeklyGoal, resetAllData, exportToCSV, exportData, importData } = useStudy();
+  const [importText, setImportText] = useState('');
   const { 
     reminders, 
     notificationPermission, 
@@ -199,7 +201,60 @@ const SettingsPage = () => {
 
           <Separator />
 
-          {/* Reset */}
+          {/* Transfer Data */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Smartphone className="h-5 w-5" />
+              <div>
+                <p className="font-medium">Transfer Between Devices</p>
+                <p className="text-sm text-muted-foreground">
+                  Copy your data on one device, paste it on another
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button
+                variant="outline"
+                className="gap-2 flex-1"
+                onClick={() => {
+                  const data = exportData();
+                  navigator.clipboard.writeText(data);
+                  toast.success('Data copied to clipboard! Paste it on your other device.');
+                }}
+              >
+                <Copy className="h-4 w-4" />
+                Copy My Data
+              </Button>
+            </div>
+
+            <Textarea
+              placeholder="Paste your data here from another device..."
+              value={importText}
+              onChange={(e) => setImportText(e.target.value)}
+              rows={3}
+              className="text-xs font-mono"
+            />
+            <Button
+              variant="outline"
+              className="gap-2 w-full"
+              disabled={!importText.trim()}
+              onClick={() => {
+                const result = importData(importText);
+                if (result.success) {
+                  toast.success('Data imported successfully!');
+                  setImportText('');
+                } else {
+                  toast.error('Invalid data. Make sure you copied the full text.');
+                }
+              }}
+            >
+              <ClipboardPaste className="h-4 w-4" />
+              Import Data
+            </Button>
+          </div>
+
+          <Separator />
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <p className="font-medium text-destructive">Reset All Data</p>

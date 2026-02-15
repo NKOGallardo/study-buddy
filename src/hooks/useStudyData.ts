@@ -253,6 +253,24 @@ export function useStudyData() {
     URL.revokeObjectURL(url);
   }, [sessions]);
 
+  // Export all data as JSON string
+  const exportData = useCallback(() => {
+    return JSON.stringify({ sessions, goals, weeklyGoals }, null, 2);
+  }, [sessions, goals, weeklyGoals]);
+
+  // Import data from JSON string
+  const importData = useCallback((jsonString: string) => {
+    try {
+      const data = JSON.parse(jsonString);
+      if (data.sessions) setSessions(data.sessions);
+      if (data.goals) setGoals(data.goals);
+      if (data.weeklyGoals) setWeeklyGoals(data.weeklyGoals);
+      return { success: true };
+    } catch {
+      return { success: false, error: 'Invalid data format' };
+    }
+  }, []);
+
   return {
     sessions,
     goals,
@@ -273,5 +291,7 @@ export function useStudyData() {
     getStreak,
     resetAllData,
     exportToCSV,
+    exportData,
+    importData,
   };
 }
