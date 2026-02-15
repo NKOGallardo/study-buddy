@@ -41,6 +41,105 @@ export type Database = {
         }
         Relationships: []
       }
+      study_sessions: {
+        Row: {
+          created_at: string
+          date: string
+          difficulty: string
+          duration: number
+          id: string
+          image_url: string | null
+          mood: string
+          status: string
+          subject: string
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          difficulty: string
+          duration: number
+          id?: string
+          image_url?: string | null
+          mood: string
+          status: string
+          subject: string
+          topic: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          difficulty?: string
+          duration?: number
+          id?: string
+          image_url?: string | null
+          mood?: string
+          status?: string
+          subject?: string
+          topic?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subject_goals: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string
+          subject: string
+          updated_at: string
+          user_id: string
+          weekly_goal: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+          weekly_goal?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+          weekly_goal?: number
+        }
+        Relationships: []
+      }
+      topics: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          subject: string
+          text: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          subject: string
+          text: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          subject?: string
+          text?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
