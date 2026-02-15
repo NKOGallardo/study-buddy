@@ -239,8 +239,8 @@ const SettingsPage = () => {
               variant="outline"
               className="gap-2 w-full"
               disabled={!importText.trim()}
-              onClick={() => {
-                const result = importData(importText);
+              onClick={async () => {
+                const result = await importData(importText);
                 if (result.success) {
                   toast.success('Data imported successfully!');
                   setImportText('');
