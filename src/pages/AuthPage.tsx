@@ -15,7 +15,7 @@ export default function AuthPage() {
   const { user, loading, signIn, signUp } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [isAppleLoading, setIsAppleLoading] = useState(false);
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
