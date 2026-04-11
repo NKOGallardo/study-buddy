@@ -65,13 +65,21 @@ export function useStudyData() {
       }
 
       // Load goals + topics
-      const { data: goalsData } = await supabase
+      const { data: goalsData, error: goalsError } = await supabase
         .from('subject_goals')
         .select('*');
 
-      const { data: topicsData } = await supabase
+      if (goalsError) {
+        console.error('Failed to load goals:', goalsError);
+      }
+
+      const { data: topicsData, error: topicsError } = await supabase
         .from('topics')
         .select('*');
+
+      if (topicsError) {
+        console.error('Failed to load topics:', topicsError);
+      }
 
       const topicsBySubject: Record<string, TopicItem[]> = {};
       topicsData?.forEach(t => {
