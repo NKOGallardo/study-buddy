@@ -22,7 +22,7 @@ const getDefaultGoals = (): SubjectGoal[] => [
 ];
 
 export function useStudyData() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [goals, setGoals] = useState<SubjectGoal[]>(getDefaultGoals());
   const [weeklyGoals, setWeeklyGoals] = useState<WeeklyGoals>(DEFAULT_WEEKLY_GOALS);
@@ -30,7 +30,7 @@ export function useStudyData() {
 
   // Load data from database
   useEffect(() => {
-    if (!user) {
+    if (!user || !session) {
       setSessions([]);
       setGoals(getDefaultGoals());
       setWeeklyGoals(DEFAULT_WEEKLY_GOALS);
@@ -40,10 +40,14 @@ export function useStudyData() {
 
     const loadData = async () => {
       // Load sessions
-      const { data: sessionsData } = await supabase
+      const { data: sessionsData, error: sessionsError } = await supabase
         .from('study_sessions')
         .select('*')
         .order('created_at', { ascending: false });
+
+      if (sessionsError) {
+        console.error('Failed to load sessions:', sessionsError);
+      }
 
       if (sessionsData) {
         setSessions(sessionsData.map(s => ({
@@ -61,13 +65,21 @@ export function useStudyData() {
       }
 
       // Load goals + topics
-      const { data: goalsData } = await supabase
+      const { data: goalsData, error: goalsError } = await supabase
         .from('subject_goals')
         .select('*');
 
-      const { data: topicsData } = await supabase
+      if (goalsError) {
+        console.error('Failed to load goals:', goalsError);
+      }
+
+      const { data: topicsData, error: topicsError } = await supabase
         .from('topics')
         .select('*');
+
+      if (topicsError) {
+        console.error('Failed to load topics:', topicsError);
+      }
 
       const topicsBySubject: Record<string, TopicItem[]> = {};
       topicsData?.forEach(t => {
@@ -101,7 +113,7 @@ export function useStudyData() {
     };
 
     loadData();
-  }, [user]);
+  }, [user, session]);
 
   // Add study session
   const addSession = useCallback(async (session: Omit<StudySession, 'id' | 'createdAt'>) => {
