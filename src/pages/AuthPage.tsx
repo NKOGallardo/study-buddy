@@ -82,8 +82,31 @@ export default function AuthPage() {
     setIsSubmitting(false);
   };
 
+  const handleAppleSignIn = async () => {
+    setIsAppleLoading(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("apple", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        toast({
+          title: 'Apple sign-in failed',
+          description: result.error.message,
+          variant: 'destructive',
+        });
+      }
+      if (result.redirected) return;
+    } catch (err) {
+      toast({
+        title: 'Apple sign-in failed',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAppleLoading(false);
+    }
+  };
 
-  return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
