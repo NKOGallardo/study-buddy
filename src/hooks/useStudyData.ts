@@ -113,7 +113,7 @@ export function useStudyData() {
     };
 
     loadData();
-  }, [user]);
+  }, [user, session]);
 
   // Add study session
   const addSession = useCallback(async (session: Omit<StudySession, 'id' | 'createdAt'>) => {
