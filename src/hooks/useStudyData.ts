@@ -22,7 +22,7 @@ const getDefaultGoals = (): SubjectGoal[] => [
 ];
 
 export function useStudyData() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [goals, setGoals] = useState<SubjectGoal[]>(getDefaultGoals());
   const [weeklyGoals, setWeeklyGoals] = useState<WeeklyGoals>(DEFAULT_WEEKLY_GOALS);
@@ -30,7 +30,7 @@ export function useStudyData() {
 
   // Load data from database
   useEffect(() => {
-    if (!user) {
+    if (!user || !session) {
       setSessions([]);
       setGoals(getDefaultGoals());
       setWeeklyGoals(DEFAULT_WEEKLY_GOALS);
@@ -40,10 +40,14 @@ export function useStudyData() {
 
     const loadData = async () => {
       // Load sessions
-      const { data: sessionsData } = await supabase
+      const { data: sessionsData, error: sessionsError } = await supabase
         .from('study_sessions')
         .select('*')
         .order('created_at', { ascending: false });
+
+      if (sessionsError) {
+        console.error('Failed to load sessions:', sessionsError);
+      }
 
       if (sessionsData) {
         setSessions(sessionsData.map(s => ({
