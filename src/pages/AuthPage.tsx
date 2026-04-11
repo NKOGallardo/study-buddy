@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { BookOpen, Loader2 } from 'lucide-react';
+import { lovable } from '@/integrations/lovable';
+import { Separator } from '@/components/ui/separator';
 
 export default function AuthPage() {
   const { user, loading, signIn, signUp } = useAuth();
