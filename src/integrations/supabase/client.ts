@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 // These names must match EXACTLY what you saved in the "Secrets" tab
-const SUPABASE_URL = import.meta.env.PROJECT_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.PROJECT_ANON_KEY;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 // Check to make sure the secrets are actually loading
 if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
