@@ -1,23 +1,39 @@
 
 
-## Plan: Fix Supabase Client Configuration
+The user says they "can't [see/do] a thing on Supabase." Based on prior conversation, they want to view their backend data in the Supabase dashboard. Since this project uses Lovable Cloud, they don't have direct Supabase dashboard access — they need to use the in-app Cloud view.
 
-### Problem
-The current `src/integrations/supabase/client.ts` references `import.meta.env.PROJECT_URL` and `import.meta.env.PROJECT_ANON_KEY`, but Vite requires the `VITE_` prefix for environment variables to be available in frontend code. The `.env` file already has the correct variables: `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+## Plan: Help You Access Your Backend
 
-The secrets you added (PROJECT_URL, PROJECT_ANON_KEY) are **runtime secrets** — available to backend/edge functions only, not to the frontend at build time.
+Since this project uses **Lovable Cloud**, you don't log into supabase.com directly. Instead, your backend (database, users, storage, etc.) is accessed through the **Cloud view** built into Lovable.
 
-### What I'll Do
+### How to open your backend
 
-**Update `src/integrations/supabase/client.ts`** to use the correct environment variables:
+**On Desktop:**
+1. Look at the navigation bar above the preview window
+2. Click the **Cloud** icon (cloud-shaped). If you don't see it, click the **+ "More"** menu
+3. From there you can open: Database, Users, Storage, Edge Functions, Secrets
 
-```typescript
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-```
+**On Mobile:**
+1. Make sure you're in **Chat mode**
+2. Tap the **…** (ellipsis) icon in the bottom-right corner
+3. Tap **Cloud** → then pick Database / Users / etc.
 
-This is a one-line fix — the `.env` file already has the right values pointing to your Lovable Cloud backend. If you want to point to a **different** Supabase project, you'd need to update the `.env` values (which are managed automatically by Lovable Cloud and cannot be edited manually).
+**Quickest way (Desktop only):**
+- Press **Cmd+K** (Mac) or **Ctrl+K** (Windows) → type "database" or "users" → hit Enter
 
-### Important Note
-Since this project uses Lovable Cloud, the `.env` is auto-managed. The runtime secrets (PROJECT_URL, PROJECT_ANON_KEY) will still be useful for any edge functions that need them.
+### What you'll see
+
+- **Database → Tables**: your `profiles`, `study_sessions`, `subject_goals`, `topics` tables with all rows
+- **Users**: list of signed-up users (you're logged in as `nkogalado@gmail.com`)
+- **Secrets**: your stored secrets (PROJECT_URL, PROJECT_ANON_KEY, etc.)
+
+I'll add a button below this plan so you can jump straight to the backend view.
+
+### If something specific isn't working
+
+Tell me which of these is happening so I can fix it:
+- The Cloud icon doesn't appear in your nav bar
+- You opened the database but the tables look empty
+- You're getting a permission/error message
+- You wanted the actual supabase.com dashboard (not available with Lovable Cloud)
 
