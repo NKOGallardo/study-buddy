@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useStudy } from '@/contexts/StudyContext';
-import { SUBJECTS } from '@/types/study';
+import { SubjectIcon } from '@/components/subjects/SubjectIcon';
 import {
   format,
   startOfMonth,
@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils';
 const CalendarPage = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const { sessions, getSessionsByDate } = useStudy();
+  const { sessions, getSubjectBySlug } = useStudy();
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -37,24 +37,19 @@ const CalendarPage = () => {
   };
 
   const getTotalMinutesForDay = (date: Date) => {
-    const daySessions = getSessionsForDay(date);
-    return daySessions.reduce((sum, s) => sum + s.duration, 0);
+    return getSessionsForDay(date).reduce((sum, s) => sum + s.duration, 0);
   };
 
-  const selectedDateSessions = selectedDate
-    ? getSessionsForDay(selectedDate)
-    : [];
+  const selectedDateSessions = selectedDate ? getSessionsForDay(selectedDate) : [];
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-fade-up">
-      {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold">Calendar</h1>
         <p className="text-muted-foreground mt-1 text-sm sm:text-base">View your study history</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        {/* Calendar */}
         <Card className="shadow-notion border-border/50 lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between p-4 sm:p-6">
             <CardTitle className="text-base sm:text-lg font-semibold">
@@ -80,7 +75,6 @@ const CalendarPage = () => {
             </div>
           </CardHeader>
           <CardContent className="p-2 sm:p-6 pt-0 sm:pt-0">
-            {/* Day headers */}
             <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-1 sm:mb-2">
               {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
                 <div
@@ -93,7 +87,6 @@ const CalendarPage = () => {
               ))}
             </div>
 
-            {/* Calendar grid */}
             <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
               {days.map((day) => {
                 const daySessions = getSessionsForDay(day);
@@ -102,7 +95,6 @@ const CalendarPage = () => {
                 const isCurrentMonth = isSameMonth(day, currentMonth);
                 const isSelected = selectedDate && isSameDay(day, selectedDate);
 
-                // Intensity based on study time
                 let intensity = '';
                 if (totalMinutes > 120) intensity = 'bg-success/40';
                 else if (totalMinutes > 60) intensity = 'bg-success/25';
@@ -125,11 +117,15 @@ const CalendarPage = () => {
                     {daySessions.length > 0 && !isSelected && (
                       <div className="hidden sm:flex gap-0.5 mt-1 flex-wrap justify-center">
                         {daySessions.slice(0, 3).map((session) => {
-                          const subject = SUBJECTS.find((s) => s.id === session.subject);
+                          const subject = getSubjectBySlug(session.subject);
                           return (
-                            <span key={session.id} className="text-xs">
-                              {subject?.icon}
-                            </span>
+                            <span
+                              key={session.id}
+                              className="h-2 w-2 rounded-full"
+                              style={{
+                                backgroundColor: subject ? `hsl(${subject.color})` : 'hsl(var(--primary))',
+                              }}
+                            />
                           );
                         })}
                         {daySessions.length > 3 && (
@@ -149,13 +145,10 @@ const CalendarPage = () => {
           </CardContent>
         </Card>
 
-        {/* Selected day details */}
         <Card className="shadow-notion border-border/50">
           <CardHeader>
             <CardTitle className="text-base font-medium">
-              {selectedDate
-                ? format(selectedDate, 'EEEE, MMMM d')
-                : 'Select a day'}
+              {selectedDate ? format(selectedDate, 'EEEE, MMMM d') : 'Select a day'}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -163,26 +156,27 @@ const CalendarPage = () => {
               selectedDateSessions.length > 0 ? (
                 <div className="space-y-3">
                   <p className="text-sm text-muted-foreground mb-4">
-                    {selectedDateSessions.reduce((sum, s) => sum + s.duration, 0)} minutes
-                    studied
+                    {selectedDateSessions.reduce((sum, s) => sum + s.duration, 0)} minutes studied
                   </p>
                   {selectedDateSessions.map((session) => {
-                    const subject = SUBJECTS.find((s) => s.id === session.subject);
+                    const subject = getSubjectBySlug(session.subject);
                     return (
-                      <div
-                        key={session.id}
-                        className="p-3 rounded-lg bg-muted/30 space-y-2"
-                      >
+                      <div key={session.id} className="p-3 rounded-lg bg-muted/30 space-y-2">
                         <div className="flex items-center gap-2">
-                          <span>{subject?.icon}</span>
-                          <span className="font-medium">{subject?.name}</span>
+                          <span
+                            className="h-6 w-6 rounded flex items-center justify-center text-white"
+                            style={{
+                              backgroundColor: subject ? `hsl(${subject.color})` : 'hsl(var(--muted))',
+                            }}
+                          >
+                            <SubjectIcon name={subject?.icon || 'BookOpen'} className="h-3 w-3" />
+                          </span>
+                          <span className="font-medium">{subject?.name || session.subject}</span>
                           <Badge variant="secondary" className="ml-auto">
                             {session.duration} min
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          {session.topic}
-                        </p>
+                        <p className="text-sm text-muted-foreground">{session.topic}</p>
                         <div className="flex gap-2 text-sm">
                           <Badge
                             variant="outline"
@@ -205,14 +199,10 @@ const CalendarPage = () => {
                   })}
                 </div>
               ) : (
-                <p className="text-center text-muted-foreground py-8">
-                  No study sessions on this day.
-                </p>
+                <p className="text-center text-muted-foreground py-8">No study sessions on this day.</p>
               )
             ) : (
-              <p className="text-center text-muted-foreground py-8">
-                Click on a day to see details.
-              </p>
+              <p className="text-center text-muted-foreground py-8">Click on a day to see details.</p>
             )}
           </CardContent>
         </Card>

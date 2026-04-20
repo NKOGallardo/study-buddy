@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -18,18 +18,20 @@ import {
 } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
 import { useStudy } from '@/contexts/StudyContext';
-import { SUBJECTS, Subject, Difficulty, Mood, Status } from '@/types/study';
+import { Subject, Difficulty, Mood, Status } from '@/types/study';
+import { SubjectIcon } from '@/components/subjects/SubjectIcon';
 
 interface QuickAddSessionProps {
   defaultSubject?: Subject;
 }
 
 export function QuickAddSession({ defaultSubject }: QuickAddSessionProps) {
-  const { addSession } = useStudy();
+  const { addSession, subjects } = useStudy();
   const [open, setOpen] = useState(false);
+  const initialSubject = defaultSubject || subjects[0]?.slug || '';
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
-    subject: defaultSubject || ('physics' as Subject),
+    subject: initialSubject,
     topic: '',
     duration: 30,
     difficulty: 'medium' as Difficulty,
@@ -37,12 +39,22 @@ export function QuickAddSession({ defaultSubject }: QuickAddSessionProps) {
     status: 'done' as Status,
   });
 
+  // Keep subject in sync if subjects load after mount
+  useEffect(() => {
+    if (!formData.subject && subjects.length > 0) {
+      setFormData((prev) => ({ ...prev, subject: defaultSubject || subjects[0].slug }));
+    }
+  }, [subjects, defaultSubject, formData.subject]);
+
+  const noSubjects = subjects.length === 0;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.subject) return;
     addSession(formData);
     setFormData({
       date: new Date().toISOString().split('T')[0],
-      subject: defaultSubject || 'physics',
+      subject: defaultSubject || subjects[0]?.slug || '',
       topic: '',
       duration: 30,
       difficulty: 'medium',
@@ -55,9 +67,15 @@ export function QuickAddSession({ defaultSubject }: QuickAddSessionProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2 shadow-notion hover:shadow-notion-hover transition-shadow w-full sm:w-auto">
+        <Button
+          disabled={noSubjects}
+          className="gap-2 shadow-notion hover:shadow-notion-hover transition-shadow w-full sm:w-auto"
+          title={noSubjects ? 'Create a subject first' : undefined}
+        >
           <Plus className="h-4 w-4" />
-          <span className="sm:inline">Quick Add Session</span>
+          <span className="sm:inline">
+            {noSubjects ? 'Add a subject first' : 'Quick Add Session'}
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md max-w-[95vw] max-h-[90vh] overflow-y-auto">
@@ -79,15 +97,18 @@ export function QuickAddSession({ defaultSubject }: QuickAddSessionProps) {
               <Label htmlFor="subject">Subject</Label>
               <Select
                 value={formData.subject}
-                onValueChange={(value) => setFormData({ ...formData, subject: value as Subject })}
+                onValueChange={(value) => setFormData({ ...formData, subject: value })}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SUBJECTS.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.icon} {s.name}
+                  {subjects.map((s) => (
+                    <SelectItem key={s.slug} value={s.slug}>
+                      <span className="inline-flex items-center gap-2">
+                        <SubjectIcon name={s.icon} className="h-3.5 w-3.5" style={{ color: `hsl(${s.color})` }} />
+                        {s.name}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>

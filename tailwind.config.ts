@@ -60,13 +60,6 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Subject Colors
-        physics: "hsl(var(--physics))",
-        math: "hsl(var(--math))",
-        electronics: "hsl(var(--electronics))",
-        chemistry: "hsl(var(--chemistry))",
-        english: "hsl(var(--english))",
-        zulu: "hsl(var(--zulu))",
         // Semantic
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",

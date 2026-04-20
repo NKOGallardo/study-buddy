@@ -18,7 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { SUBJECTS, Subject, DAYS_OF_WEEK, StudyReminder } from '@/types/study';
+import { Subject, DAYS_OF_WEEK, StudyReminder } from '@/types/study';
+import { useStudy } from '@/contexts/StudyContext';
+import { SubjectIcon } from '@/components/subjects/SubjectIcon';
 import { Bell, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -28,10 +30,11 @@ interface ReminderDialogProps {
 }
 
 export function ReminderDialog({ onAdd, trigger }: ReminderDialogProps) {
+  const { subjects } = useStudy();
   const [open, setOpen] = useState(false);
   const [subject, setSubject] = useState<Subject | 'any'>('any');
   const [time, setTime] = useState('09:00');
-  const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 4, 5]); // Mon-Fri default
+  const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 4, 5]);
   const [message, setMessage] = useState('');
 
   const toggleDay = (day: number) => {
@@ -51,7 +54,6 @@ export function ReminderDialog({ onAdd, trigger }: ReminderDialogProps) {
       enabled: true,
     });
 
-    // Reset form
     setSubject('any');
     setTime('09:00');
     setSelectedDays([1, 2, 3, 4, 5]);
@@ -82,7 +84,6 @@ export function ReminderDialog({ onAdd, trigger }: ReminderDialogProps) {
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* Subject Selection */}
           <div className="space-y-2">
             <Label>Subject</Label>
             <Select value={subject} onValueChange={(v) => setSubject(v as Subject | 'any')}>
@@ -91,16 +92,18 @@ export function ReminderDialog({ onAdd, trigger }: ReminderDialogProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="any">📚 Any Subject</SelectItem>
-                {SUBJECTS.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.icon} {s.name}
+                {subjects.map((s) => (
+                  <SelectItem key={s.slug} value={s.slug}>
+                    <span className="inline-flex items-center gap-2">
+                      <SubjectIcon name={s.icon} className="h-3.5 w-3.5" style={{ color: `hsl(${s.color})` }} />
+                      {s.name}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Time Selection */}
           <div className="space-y-2">
             <Label>Time</Label>
             <Input
@@ -111,7 +114,6 @@ export function ReminderDialog({ onAdd, trigger }: ReminderDialogProps) {
             />
           </div>
 
-          {/* Days Selection */}
           <div className="space-y-2">
             <Label>Days</Label>
             <div className="flex flex-wrap gap-1">
@@ -133,7 +135,6 @@ export function ReminderDialog({ onAdd, trigger }: ReminderDialogProps) {
             </div>
           </div>
 
-          {/* Message */}
           <div className="space-y-2">
             <Label>Custom Message (optional)</Label>
             <Input

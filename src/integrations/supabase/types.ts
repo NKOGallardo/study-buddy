@@ -125,6 +125,45 @@ export type Database = {
         }
         Relationships: []
       }
+      subjects: {
+        Row: {
+          color: string
+          created_at: string
+          icon: string
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+          user_id: string
+          weekly_goal: number
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+          user_id: string
+          weekly_goal?: number
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+          user_id?: string
+          weekly_goal?: number
+        }
+        Relationships: []
+      }
       topics: {
         Row: {
           completed: boolean

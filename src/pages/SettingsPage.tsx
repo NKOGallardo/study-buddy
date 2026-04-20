@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -18,10 +16,24 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useStudy } from '@/contexts/StudyContext';
 import { useReminders } from '@/hooks/useReminders';
-import { SUBJECTS, Subject } from '@/types/study';
 import { ReminderDialog } from '@/components/reminders/ReminderDialog';
 import { ReminderList } from '@/components/reminders/ReminderList';
-import { Download, Trash2, Moon, Sun, Bell, BellRing, Copy, ClipboardPaste, Smartphone, Share2, MessageCircle, Mail, Send } from 'lucide-react';
+import { SubjectManager } from '@/components/subjects/SubjectManager';
+import {
+  Download,
+  Trash2,
+  Moon,
+  Sun,
+  Bell,
+  BellRing,
+  Copy,
+  ClipboardPaste,
+  Smartphone,
+  Share2,
+  MessageCircle,
+  Mail,
+  Send,
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,24 +44,23 @@ import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 
 const SettingsPage = () => {
-  const { weeklyGoals, updateWeeklyGoal, resetAllData, exportToCSV, exportData, importData } = useStudy();
+  const { resetAllData, exportToCSV, exportData, importData } = useStudy();
   const [importText, setImportText] = useState('');
-  const { 
-    reminders, 
-    notificationPermission, 
-    requestPermission, 
-    addReminder, 
-    toggleReminder, 
-    deleteReminder 
+  const {
+    reminders,
+    notificationPermission,
+    requestPermission,
+    addReminder,
+    toggleReminder,
+    deleteReminder,
   } = useReminders();
   const [isDark, setIsDark] = useState(false);
 
-  // Initialize theme from localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem('studytrack_theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const shouldBeDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
-    
+
     setIsDark(shouldBeDark);
     if (shouldBeDark) {
       document.documentElement.classList.add('dark');
@@ -59,7 +70,6 @@ const SettingsPage = () => {
   const toggleTheme = () => {
     const newTheme = !isDark;
     setIsDark(newTheme);
-    
     if (newTheme) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('studytrack_theme', 'dark');
@@ -85,11 +95,13 @@ const SettingsPage = () => {
 
   return (
     <div className="space-y-6 animate-fade-up max-w-2xl">
-      {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground mt-1 text-sm sm:text-base">Customize your study tracker</p>
       </div>
+
+      {/* My Subjects */}
+      <SubjectManager />
 
       {/* Study Reminders */}
       <Card className="shadow-notion border-border/50">
@@ -100,12 +112,7 @@ const SettingsPage = () => {
           </CardTitle>
           <div className="flex items-center gap-2">
             {notificationPermission !== 'granted' && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleEnableNotifications}
-                className="gap-2"
-              >
+              <Button variant="outline" size="sm" onClick={handleEnableNotifications} className="gap-2">
                 <BellRing className="h-4 w-4" />
                 <span className="hidden sm:inline">Enable Notifications</span>
                 <span className="sm:hidden">Enable</span>
@@ -120,11 +127,7 @@ const SettingsPage = () => {
               Notifications are blocked. Please enable them in your browser settings.
             </div>
           )}
-          <ReminderList 
-            reminders={reminders} 
-            onToggle={toggleReminder} 
-            onDelete={deleteReminder} 
-          />
+          <ReminderList reminders={reminders} onToggle={toggleReminder} onDelete={deleteReminder} />
         </CardContent>
       </Card>
 
@@ -149,49 +152,12 @@ const SettingsPage = () => {
         </CardContent>
       </Card>
 
-      {/* Weekly Goals */}
-      <Card className="shadow-notion border-border/50">
-        <CardHeader>
-          <CardTitle className="text-base font-medium">🎯 Weekly Study Goals</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Set your target study hours per subject for each week.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {SUBJECTS.map((subject) => (
-              <div key={subject.id} className="flex items-center gap-3">
-                <span className="text-xl">{subject.icon}</span>
-                <Label htmlFor={`goal-${subject.id}`} className="flex-1 text-sm sm:text-base">
-                  {subject.name}
-                </Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id={`goal-${subject.id}`}
-                    type="number"
-                    min="0"
-                    max="40"
-                    className="w-16 sm:w-20 text-center"
-                    value={weeklyGoals[subject.id as Subject]}
-                    onChange={(e) =>
-                      updateWeeklyGoal(subject.id as Subject, parseInt(e.target.value) || 0)
-                    }
-                  />
-                  <span className="text-sm text-muted-foreground">hrs</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Data Management */}
       <Card className="shadow-notion border-border/50">
         <CardHeader>
           <CardTitle className="text-base font-medium">💾 Data Management</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Export */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <p className="font-medium">Export Study History</p>
@@ -207,7 +173,6 @@ const SettingsPage = () => {
 
           <Separator />
 
-          {/* Transfer Data */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Smartphone className="h-5 w-5" />
@@ -218,7 +183,7 @@ const SettingsPage = () => {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-2">
               <Button
                 variant="outline"
@@ -240,42 +205,52 @@ const SettingsPage = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => {
-                    const data = exportData();
-                    const text = encodeURIComponent(data);
-                    window.open(`https://wa.me/?text=${text}`, '_blank');
-                  }}>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      const data = exportData();
+                      const text = encodeURIComponent(data);
+                      window.open(`https://wa.me/?text=${text}`, '_blank');
+                    }}
+                  >
                     <MessageCircle className="h-4 w-4 mr-2" />
                     WhatsApp
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => {
-                    const data = exportData();
-                    const text = encodeURIComponent(data);
-                    window.open(`https://t.me/share/url?text=${text}`, '_blank');
-                  }}>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      const data = exportData();
+                      const text = encodeURIComponent(data);
+                      window.open(`https://t.me/share/url?text=${text}`, '_blank');
+                    }}
+                  >
                     <Send className="h-4 w-4 mr-2" />
                     Telegram
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => {
-                    const data = exportData();
-                    const subject = encodeURIComponent('StudyTrack Data Export');
-                    const body = encodeURIComponent(data);
-                    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
-                  }}>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      const data = exportData();
+                      const subject = encodeURIComponent('StudyTrack Data Export');
+                      const body = encodeURIComponent(data);
+                      window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+                    }}
+                  >
                     <Mail className="h-4 w-4 mr-2" />
                     Email
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={async () => {
-                    const data = exportData();
-                    if (navigator.share) {
-                      try {
-                        await navigator.share({ title: 'StudyTrack Data', text: data });
-                      } catch { /* user cancelled */ }
-                    } else {
-                      navigator.clipboard.writeText(data);
-                      toast.success('Data copied to clipboard!');
-                    }
-                  }}>
+                  <DropdownMenuItem
+                    onClick={async () => {
+                      const data = exportData();
+                      if (navigator.share) {
+                        try {
+                          await navigator.share({ title: 'StudyTrack Data', text: data });
+                        } catch {
+                          /* user cancelled */
+                        }
+                      } else {
+                        navigator.clipboard.writeText(data);
+                        toast.success('Data copied to clipboard!');
+                      }
+                    }}
+                  >
                     <Share2 className="h-4 w-4 mr-2" />
                     More...
                   </DropdownMenuItem>
@@ -328,13 +303,16 @@ const SettingsPage = () => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete all your
-                    study sessions, notes, topics, and reset all goals to defaults.
+                    This action cannot be undone. This will permanently delete all your study sessions,
+                    notes, topics, subjects, and goals.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="flex-col sm:flex-row gap-2">
                   <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleReset} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto">
+                  <AlertDialogAction
+                    onClick={handleReset}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
+                  >
                     Yes, reset everything
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -351,12 +329,8 @@ const SettingsPage = () => {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            StudyTrack is a Notion-style study tracker that helps you stay organized
-            and focused on your learning goals. Track your study sessions, manage
-            topics, and visualize your progress.
-          </p>
-          <p className="text-sm text-muted-foreground mt-3">
-            Data is stored locally in your browser using LocalStorage.
+            StudyTrack helps you stay organized and focused on your learning goals. Track your study
+            sessions, manage topics, and visualize your progress.
           </p>
         </CardContent>
       </Card>

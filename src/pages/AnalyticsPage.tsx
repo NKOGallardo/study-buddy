@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useStudy } from '@/contexts/StudyContext';
-import { SUBJECTS, Subject } from '@/types/study';
 import {
   BarChart,
   Bar,
@@ -16,28 +15,17 @@ import {
   Line,
   Legend,
 } from 'recharts';
-import { format, subDays, eachDayOfInterval, startOfWeek, endOfWeek } from 'date-fns';
-
-const COLORS = {
-  physics: 'hsl(217, 91%, 60%)',
-  math: 'hsl(142, 71%, 45%)',
-  electronics: 'hsl(271, 91%, 65%)',
-  chemistry: 'hsl(25, 95%, 53%)',
-  english: 'hsl(340, 82%, 52%)',
-  zulu: 'hsl(199, 89%, 48%)',
-};
+import { format, subDays, eachDayOfInterval } from 'date-fns';
 
 const AnalyticsPage = () => {
-  const { sessions, getWeeklyHoursBySubject } = useStudy();
+  const { sessions, subjects, getWeeklyHoursBySubject } = useStudy();
 
-  // Weekly hours by subject
-  const weeklyData = SUBJECTS.map((subject) => ({
+  const weeklyData = subjects.map((subject) => ({
     name: subject.name,
-    hours: getWeeklyHoursBySubject(subject.id as Subject),
-    color: COLORS[subject.id as Subject],
+    hours: getWeeklyHoursBySubject(subject.slug),
+    color: `hsl(${subject.color})`,
   }));
 
-  // Hours per day (last 7 days)
   const last7Days = eachDayOfInterval({
     start: subDays(new Date(), 6),
     end: new Date(),
@@ -47,28 +35,24 @@ const AnalyticsPage = () => {
     const dayStr = format(day, 'yyyy-MM-dd');
     const daySessions = sessions.filter((s) => s.date === dayStr);
     const totalMinutes = daySessions.reduce((sum, s) => sum + s.duration, 0);
-    return {
-      date: format(day, 'EEE'),
-      hours: totalMinutes / 60,
-    };
+    return { date: format(day, 'EEE'), hours: totalMinutes / 60 };
   });
 
-  // Total hours by subject (all time)
-  const totalBySubject = SUBJECTS.map((subject) => {
-    const subjectSessions = sessions.filter((s) => s.subject === subject.id);
-    const totalMinutes = subjectSessions.reduce((sum, s) => sum + s.duration, 0);
-    return {
-      name: subject.name,
-      value: totalMinutes / 60,
-      color: COLORS[subject.id as Subject],
-    };
-  }).filter((s) => s.value > 0);
+  const totalBySubject = subjects
+    .map((subject) => {
+      const subjectSessions = sessions.filter((s) => s.subject === subject.slug);
+      const totalMinutes = subjectSessions.reduce((sum, s) => sum + s.duration, 0);
+      return {
+        name: subject.name,
+        value: totalMinutes / 60,
+        color: `hsl(${subject.color})`,
+      };
+    })
+    .filter((s) => s.value > 0);
 
-  // Performance trend (difficulty vs time)
   const performanceData = last7Days.map((day) => {
     const dayStr = format(day, 'yyyy-MM-dd');
     const daySessions = sessions.filter((s) => s.date === dayStr);
-    
     const avgDifficulty =
       daySessions.length > 0
         ? daySessions.reduce((sum, s) => {
@@ -76,34 +60,23 @@ const AnalyticsPage = () => {
             return sum + score;
           }, 0) / daySessions.length
         : 0;
-
     const goodMoodCount = daySessions.filter((s) => s.mood === 'good').length;
     const moodScore = daySessions.length > 0 ? (goodMoodCount / daySessions.length) * 100 : 0;
-
-    return {
-      date: format(day, 'EEE'),
-      difficulty: avgDifficulty,
-      mood: moodScore,
-    };
+    return { date: format(day, 'EEE'), difficulty: avgDifficulty, mood: moodScore };
   });
 
-  // Calculate stats
   const totalHours = sessions.reduce((sum, s) => sum + s.duration, 0) / 60;
   const mostStudied = [...weeklyData].sort((a, b) => b.hours - a.hours)[0];
   const avgSessionLength =
-    sessions.length > 0
-      ? sessions.reduce((sum, s) => sum + s.duration, 0) / sessions.length
-      : 0;
+    sessions.length > 0 ? sessions.reduce((sum, s) => sum + s.duration, 0) / sessions.length : 0;
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-fade-up">
-      {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold">Analytics</h1>
         <p className="text-muted-foreground mt-1 text-sm sm:text-base">Insights into your study habits</p>
       </div>
 
-      {/* Summary Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <Card className="shadow-notion border-border/50">
           <CardContent className="pt-4 sm:pt-6 pb-4">
@@ -126,39 +99,43 @@ const AnalyticsPage = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* Weekly Hours by Subject */}
         <Card className="shadow-notion border-border/50">
           <CardHeader className="pb-2 sm:pb-4">
             <CardTitle className="text-sm sm:text-base font-medium">Weekly Hours by Subject</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[250px] sm:h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weeklyData} layout="vertical" margin={{ left: -10, right: 10 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                  <XAxis type="number" unit="h" tick={{ fontSize: 12 }} />
-                  <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 11 }} />
-                  <Tooltip
-                    formatter={(value: number) => [`${value.toFixed(1)}h`, 'Hours']}
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--background))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                    }}
-                  />
-                  <Bar dataKey="hours" radius={[0, 4, 4, 0]}>
-                    {weeklyData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              {weeklyData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={weeklyData} layout="vertical" margin={{ left: -10, right: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                    <XAxis type="number" unit="h" tick={{ fontSize: 12 }} />
+                    <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 11 }} />
+                    <Tooltip
+                      formatter={(value: number) => [`${value.toFixed(1)}h`, 'Hours']}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                        fontSize: '12px',
+                      }}
+                    />
+                    <Bar dataKey="hours" radius={[0, 4, 4, 0]}>
+                      {weeklyData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+                  No subjects yet
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Time Distribution */}
         <Card className="shadow-notion border-border/50">
           <CardHeader className="pb-2 sm:pb-4">
             <CardTitle className="text-sm sm:text-base font-medium">Time Distribution</CardTitle>
@@ -202,7 +179,6 @@ const AnalyticsPage = () => {
           </CardContent>
         </Card>
 
-        {/* Daily Study Time */}
         <Card className="shadow-notion border-border/50">
           <CardHeader className="pb-2 sm:pb-4">
             <CardTitle className="text-sm sm:text-base font-medium">Daily Study Time (Last 7 Days)</CardTitle>
@@ -230,7 +206,6 @@ const AnalyticsPage = () => {
           </CardContent>
         </Card>
 
-        {/* Performance Trend */}
         <Card className="shadow-notion border-border/50">
           <CardHeader className="pb-2 sm:pb-4">
             <CardTitle className="text-sm sm:text-base font-medium">Performance Trend</CardTitle>
