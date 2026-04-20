@@ -1,30 +1,28 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Clock, Flame, Target, TrendingUp } from 'lucide-react';
 import { useStudy } from '@/contexts/StudyContext';
-import { SUBJECTS } from '@/types/study';
 
 export function StatsCards() {
-  const { getWeeklyHours, getStreak, sessions, getWeeklyHoursBySubject, weeklyGoals } = useStudy();
+  const { getWeeklyHours, getStreak, getWeeklyHoursBySubject, subjects } = useStudy();
 
   const weeklyHours = getWeeklyHours();
   const streak = getStreak();
-  
-  // Calculate total weekly goal
-  const totalWeeklyGoal = SUBJECTS.reduce((sum, s) => sum + weeklyGoals[s.id], 0);
-  const overallProgress = Math.min((weeklyHours / totalWeeklyGoal) * 100, 100);
 
-  // Most studied subject this week
-  const subjectHours = SUBJECTS.map((s) => ({
-    subject: s,
-    hours: getWeeklyHoursBySubject(s.id),
-  })).sort((a, b) => b.hours - a.hours);
+  const totalWeeklyGoal = subjects.reduce((sum, s) => sum + s.weeklyGoal, 0);
+  const overallProgress = totalWeeklyGoal > 0
+    ? Math.min((weeklyHours / totalWeeklyGoal) * 100, 100)
+    : 0;
+
+  const subjectHours = subjects
+    .map((s) => ({ subject: s, hours: getWeeklyHoursBySubject(s.slug) }))
+    .sort((a, b) => b.hours - a.hours);
   const mostStudied = subjectHours[0];
 
   const stats = [
     {
       title: 'Weekly Hours',
       value: `${weeklyHours.toFixed(1)}h`,
-      subtitle: `of ${totalWeeklyGoal}h goal`,
+      subtitle: totalWeeklyGoal > 0 ? `of ${totalWeeklyGoal}h goal` : 'no goal set',
       icon: Clock,
       color: 'bg-info/10 text-info',
     },
@@ -54,8 +52,8 @@ export function StatsCards() {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {stats.map((stat, index) => (
-        <Card 
-          key={stat.title} 
+        <Card
+          key={stat.title}
           className="shadow-notion border-border/50 hover:shadow-notion-hover transition-shadow animate-fade-up"
           style={{ animationDelay: `${index * 50}ms` }}
         >

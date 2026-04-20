@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useStudy } from '@/contexts/StudyContext';
-import { SUBJECTS } from '@/types/study';
+import { SubjectIcon } from '@/components/subjects/SubjectIcon';
 import { formatDistanceToNow } from 'date-fns';
 
 export function RecentActivity() {
-  const { sessions } = useStudy();
+  const { sessions, getSubjectBySlug } = useStudy();
 
   const recentSessions = sessions.slice(0, 5);
 
@@ -31,21 +31,28 @@ export function RecentActivity() {
       </CardHeader>
       <CardContent className="space-y-3 sm:space-y-4">
         {recentSessions.map((session) => {
-          const subject = SUBJECTS.find((s) => s.id === session.subject);
+          const subject = getSubjectBySlug(session.subject);
           return (
             <div
               key={session.id}
               className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
             >
-              <span className="text-lg sm:text-xl flex-shrink-0">{subject?.icon}</span>
+              <span
+                className="h-8 w-8 rounded-lg flex items-center justify-center text-white flex-shrink-0"
+                style={{ backgroundColor: subject ? `hsl(${subject.color})` : 'hsl(var(--muted))' }}
+              >
+                <SubjectIcon name={subject?.icon || 'BookOpen'} className="h-4 w-4" />
+              </span>
               <div className="flex-1 min-w-0">
                 <p className="font-medium truncate text-sm sm:text-base">{session.topic}</p>
                 <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground mt-1">
-                  <span className="truncate">{subject?.name}</span>
+                  <span className="truncate">{subject?.name || session.subject}</span>
                   <span className="hidden sm:inline">•</span>
                   <span>{session.duration} min</span>
                   <span className="hidden sm:inline">•</span>
-                  <span className="hidden sm:inline">{formatDistanceToNow(new Date(session.createdAt), { addSuffix: true })}</span>
+                  <span className="hidden sm:inline">
+                    {formatDistanceToNow(new Date(session.createdAt), { addSuffix: true })}
+                  </span>
                 </div>
               </div>
               <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0 text-sm sm:text-base">

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -8,9 +9,10 @@ import {
   Search,
   Timer,
   LogOut,
+  Plus,
 } from 'lucide-react';
-import { SUBJECTS, Subject } from '@/types/study';
 import { useAuth } from '@/contexts/AuthContext';
+import { useStudy } from '@/contexts/StudyContext';
 import {
   Sidebar,
   SidebarContent,
@@ -28,15 +30,9 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-
-const subjectIcons: Record<Subject, string> = {
-  physics: '⚛️',
-  math: '📐',
-  electronics: '🔧',
-  chemistry: '🧪',
-  english: '📚',
-  zulu: '🌍',
-};
+import { SubjectIcon } from '@/components/subjects/SubjectIcon';
+import { SubjectDialog } from '@/components/subjects/SubjectDialog';
+import { toast } from 'sonner';
 
 const mainNavItems = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard },
@@ -53,7 +49,9 @@ export function AppSidebar() {
   const location = useLocation();
   const { state } = useSidebar();
   const { user, signOut } = useAuth();
+  const { subjects, addSubject } = useStudy();
   const isCollapsed = state === 'collapsed';
+  const [createOpen, setCreateOpen] = useState(false);
 
   const userInitials = user?.email?.slice(0, 2).toUpperCase() || 'U';
 
@@ -73,7 +71,11 @@ export function AppSidebar() {
       <SidebarContent className="py-4">
         {/* Main Navigation */}
         <SidebarGroup>
-          {!isCollapsed && <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground px-4 mb-2">Main</SidebarGroupLabel>}
+          {!isCollapsed && (
+            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground px-4 mb-2">
+              Main
+            </SidebarGroupLabel>
+          )}
           <SidebarGroupContent>
             <SidebarMenu>
               {mainNavItems.map((item) => (
@@ -102,14 +104,50 @@ export function AppSidebar() {
 
         {/* Subjects */}
         <SidebarGroup className="mt-4">
-          {!isCollapsed && <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground px-4 mb-2">Subjects</SidebarGroupLabel>}
+          {!isCollapsed && (
+            <div className="flex items-center justify-between px-4 mb-2">
+              <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground p-0 h-auto">
+                Subjects
+              </SidebarGroupLabel>
+              <button
+                onClick={() => setCreateOpen(true)}
+                className="text-muted-foreground hover:text-sidebar-foreground transition-colors"
+                aria-label="Add subject"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
           <SidebarGroupContent>
             <SidebarMenu>
-              {SUBJECTS.map((subject) => (
+              {subjects.length === 0 && !isCollapsed && (
+                <div className="px-4 py-2">
+                  <button
+                    onClick={() => setCreateOpen(true)}
+                    className="text-xs text-muted-foreground hover:text-sidebar-foreground text-left"
+                  >
+                    No subjects yet — click + to add one
+                  </button>
+                </div>
+              )}
+              {subjects.length === 0 && isCollapsed && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <button
+                      onClick={() => setCreateOpen(true)}
+                      className="flex items-center gap-3 px-4 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 w-full"
+                      aria-label="Add subject"
+                    >
+                      <Plus className="h-4 w-4 flex-shrink-0" />
+                    </button>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+              {subjects.map((subject) => (
                 <SidebarMenuItem key={subject.id}>
                   <SidebarMenuButton asChild>
                     <NavLink
-                      to={`/subject/${subject.id}`}
+                      to={`/subject/${subject.slug}`}
                       className={({ isActive }) =>
                         cn(
                           'flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200',
@@ -119,8 +157,13 @@ export function AppSidebar() {
                         )
                       }
                     >
-                      <span className="text-base flex-shrink-0">{subjectIcons[subject.id]}</span>
-                      {!isCollapsed && <span>{subject.name}</span>}
+                      <span
+                        className="h-5 w-5 rounded flex items-center justify-center flex-shrink-0 text-white"
+                        style={{ backgroundColor: `hsl(${subject.color})` }}
+                      >
+                        <SubjectIcon name={subject.icon} className="h-3 w-3" />
+                      </span>
+                      {!isCollapsed && <span className="truncate">{subject.name}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -131,7 +174,11 @@ export function AppSidebar() {
 
         {/* Tools */}
         <SidebarGroup className="mt-4">
-          {!isCollapsed && <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground px-4 mb-2">Tools</SidebarGroupLabel>}
+          {!isCollapsed && (
+            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground px-4 mb-2">
+              Tools
+            </SidebarGroupLabel>
+          )}
           <SidebarGroupContent>
             <SidebarMenu>
               {toolsItems.map((item) => (
@@ -160,7 +207,6 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border">
-        {/* User Info */}
         {!isCollapsed && user && (
           <div className="flex items-center gap-3 px-2 py-2 mb-2">
             <Avatar className="h-8 w-8">
@@ -169,9 +215,7 @@ export function AppSidebar() {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">
-                {user.email}
-              </p>
+              <p className="text-sm font-medium text-sidebar-foreground truncate">{user.email}</p>
             </div>
           </div>
         )}
@@ -196,7 +240,6 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
 
-          {/* Logout Button */}
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Button
@@ -218,9 +261,9 @@ export function AppSidebar() {
               <span>Collapse</span>
             </SidebarTrigger>
             <div className="mt-4 pt-3 border-t border-sidebar-border">
-              <a 
-                href="https://nkogallardo.link" 
-                target="_blank" 
+              <a
+                href="https://nkogallardo.link"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
@@ -230,6 +273,15 @@ export function AppSidebar() {
           </>
         )}
       </SidebarFooter>
+
+      <SubjectDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onSubmit={async (values) => {
+          const created = await addSubject(values.name, values.icon, values.color, values.weeklyGoal);
+          if (created) toast.success(`Created "${values.name}"`);
+        }}
+      />
     </Sidebar>
   );
 }
