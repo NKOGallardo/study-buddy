@@ -1,0 +1,6 @@
+
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS email text,
+ADD COLUMN IF NOT EXISTS bio text,
+ADD COLUMN IF NOT EXISTS phone text,
+ADD COLUMN IF NOT EXISTS website text;

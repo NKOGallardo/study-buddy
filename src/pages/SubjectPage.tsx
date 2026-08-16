@@ -16,15 +16,15 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Save } from 'lucide-react';
 import { useStudy } from '@/contexts/StudyContext';
-import { SUBJECTS, Subject, SUBJECT_TEXT_COLORS } from '@/types/study';
 import { QuickAddSession } from '@/components/study/QuickAddSession';
+import { SubjectIcon } from '@/components/subjects/SubjectIcon';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
 const SubjectPage = () => {
   const { subjectId } = useParams<{ subjectId: string }>();
-  const subject = SUBJECTS.find((s) => s.id === subjectId) || SUBJECTS[0];
   const {
+    subjects,
     goals,
     getSessionsBySubject,
     updateSubjectNotes,
@@ -32,29 +32,48 @@ const SubjectPage = () => {
     toggleTopic,
     deleteTopic,
     deleteSession,
-    weeklyGoals,
     getWeeklyHoursBySubject,
   } = useStudy();
 
-  const subjectGoal = goals.find((g) => g.subject === subject.id);
-  const sessions = getSessionsBySubject(subject.id as Subject);
-  const weeklyHours = getWeeklyHoursBySubject(subject.id as Subject);
-  const goal = weeklyGoals[subject.id as Subject];
-  const progress = Math.min((weeklyHours / goal) * 100, 100);
+  const subject = subjects.find((s) => s.slug === subjectId);
 
   const [newTopic, setNewTopic] = useState('');
-  const [notes, setNotes] = useState(subjectGoal?.notes || '');
+  const [notes, setNotes] = useState('');
   const [notesSaved, setNotesSaved] = useState(true);
+  const [notesInitialized, setNotesInitialized] = useState(false);
+
+  if (!subject) {
+    return (
+      <div className="space-y-4 animate-fade-up">
+        <h1 className="text-2xl sm:text-3xl font-bold">Subject not found</h1>
+        <p className="text-muted-foreground">
+          This subject doesn't exist. Create one from the sidebar to get started.
+        </p>
+      </div>
+    );
+  }
+
+  const subjectGoal = goals.find((g) => g.subject === subject.slug);
+  const sessions = getSessionsBySubject(subject.slug);
+  const weeklyHours = getWeeklyHoursBySubject(subject.slug);
+  const goal = subject.weeklyGoal || 1;
+  const progress = Math.min((weeklyHours / goal) * 100, 100);
+
+  // Initialize notes once
+  if (!notesInitialized && subjectGoal) {
+    setNotes(subjectGoal.notes);
+    setNotesInitialized(true);
+  }
 
   const handleAddTopic = () => {
     if (newTopic.trim()) {
-      addTopic(subject.id as Subject, newTopic.trim());
+      addTopic(subject.slug, newTopic.trim());
       setNewTopic('');
     }
   };
 
   const handleSaveNotes = () => {
-    updateSubjectNotes(subject.id as Subject, notes);
+    updateSubjectNotes(subject.slug, notes);
     setNotesSaved(true);
   };
 
@@ -63,29 +82,37 @@ const SubjectPage = () => {
       {/* Header */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-3 sm:gap-4">
-          <span className="text-3xl sm:text-4xl">{subject.icon}</span>
+          <span
+            className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl flex items-center justify-center text-white flex-shrink-0"
+            style={{ backgroundColor: `hsl(${subject.color})` }}
+          >
+            <SubjectIcon name={subject.icon} className="h-6 w-6 sm:h-7 sm:w-7" />
+          </span>
           <div className="min-w-0 flex-1">
-            <h1 className={cn("text-2xl sm:text-3xl font-bold truncate", SUBJECT_TEXT_COLORS[subject.id as Subject])}>
+            <h1
+              className="text-2xl sm:text-3xl font-bold truncate"
+              style={{ color: `hsl(${subject.color})` }}
+            >
               {subject.name}
             </h1>
             <p className="text-muted-foreground text-sm sm:text-base mt-0.5 sm:mt-1">
-              {weeklyHours.toFixed(1)}h / {goal}h this week ({progress.toFixed(0)}%)
+              {weeklyHours.toFixed(1)}h / {subject.weeklyGoal}h this week ({progress.toFixed(0)}%)
             </p>
           </div>
         </div>
-        <QuickAddSession defaultSubject={subject.id as Subject} />
+        <QuickAddSession defaultSubject={subject.slug} />
       </div>
 
       {/* Progress bar */}
       <div className="h-2 bg-muted rounded-full overflow-hidden">
         <div
-          className={cn("h-full transition-all duration-500", `bg-${subject.color}`)}
-          style={{ width: `${progress}%` }}
+          className="h-full transition-all duration-500"
+          style={{ width: `${progress}%`, backgroundColor: `hsl(${subject.color})` }}
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Notes Section */}
+        {/* Notes */}
         <Card className="shadow-notion border-border/50">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base font-medium">📝 Notes</CardTitle>
@@ -113,7 +140,7 @@ const SubjectPage = () => {
           </CardContent>
         </Card>
 
-        {/* Topics Checklist */}
+        {/* Topics */}
         <Card className="shadow-notion border-border/50">
           <CardHeader>
             <CardTitle className="text-base font-medium">✅ Topics to Study</CardTitle>
@@ -132,7 +159,7 @@ const SubjectPage = () => {
             </div>
 
             <div className="space-y-2 max-h-[250px] overflow-y-auto">
-              {subjectGoal?.topics.length === 0 && (
+              {(!subjectGoal || subjectGoal.topics.length === 0) && (
                 <p className="text-sm text-muted-foreground text-center py-4">
                   No topics added yet. Start adding topics to track!
                 </p>
@@ -144,7 +171,7 @@ const SubjectPage = () => {
                 >
                   <Checkbox
                     checked={topic.completed}
-                    onCheckedChange={() => toggleTopic(subject.id as Subject, topic.id)}
+                    onCheckedChange={() => toggleTopic(subject.slug, topic.id)}
                   />
                   <span
                     className={cn(
@@ -158,7 +185,7 @@ const SubjectPage = () => {
                     variant="ghost"
                     size="icon"
                     className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-                    onClick={() => deleteTopic(subject.id as Subject, topic.id)}
+                    onClick={() => deleteTopic(subject.slug, topic.id)}
                   >
                     <Trash2 className="h-4 w-4 text-muted-foreground" />
                   </Button>
@@ -169,7 +196,7 @@ const SubjectPage = () => {
         </Card>
       </div>
 
-      {/* Study Sessions */}
+      {/* Sessions */}
       <Card className="shadow-notion border-border/50">
         <CardHeader>
           <CardTitle className="text-base font-medium">📊 Study Sessions</CardTitle>
@@ -182,7 +209,6 @@ const SubjectPage = () => {
             </div>
           ) : (
             <>
-              {/* Desktop Table */}
               <div className="hidden md:block overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -242,13 +268,9 @@ const SubjectPage = () => {
                 </Table>
               </div>
 
-              {/* Mobile Cards */}
               <div className="md:hidden space-y-3">
                 {sessions.map((session) => (
-                  <div
-                    key={session.id}
-                    className="p-4 rounded-lg bg-muted/30 space-y-2"
-                  >
+                  <div key={session.id} className="p-4 rounded-lg bg-muted/30 space-y-2">
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="font-medium">{session.topic}</p>

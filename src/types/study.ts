@@ -1,8 +1,19 @@
-export type Subject = 'physics' | 'math' | 'electronics' | 'chemistry' | 'english' | 'zulu';
+// Subject is now a dynamic slug string (per-user custom subjects)
+export type Subject = string;
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
 export type Mood = 'good' | 'tired' | 'stressed';
 export type Status = 'done' | 'in-progress';
+
+export interface SubjectDefinition {
+  id: string;
+  slug: string;
+  name: string;
+  icon: string; // Lucide icon name e.g. "Atom"
+  color: string; // HSL components e.g. "217 91% 60%"
+  weeklyGoal: number;
+  sortOrder: number;
+}
 
 export interface StudySession {
   id: string;
@@ -19,7 +30,7 @@ export interface StudySession {
 
 export interface SubjectGoal {
   subject: Subject;
-  weeklyGoal: number; // hours
+  weeklyGoal: number;
   notes: string;
   topics: TopicItem[];
 }
@@ -30,52 +41,16 @@ export interface TopicItem {
   completed: boolean;
 }
 
-export interface WeeklyGoals {
-  physics: number;
-  math: number;
-  electronics: number;
-  chemistry: number;
-  english: number;
-  zulu: number;
-}
-
 // Study Reminders
 export interface StudyReminder {
   id: string;
   subject: Subject | 'any';
   time: string; // HH:MM format
-  days: number[]; // 0 = Sunday, 1 = Monday, etc.
+  days: number[];
   message: string;
   enabled: boolean;
   createdAt: string;
 }
-
-export const SUBJECTS: { id: Subject; name: string; icon: string; color: string }[] = [
-  { id: 'physics', name: 'Physics', icon: '⚛️', color: 'physics' },
-  { id: 'math', name: 'Math', icon: '📐', color: 'math' },
-  { id: 'electronics', name: 'Trade', icon: '🔧', color: 'electronics' },
-  { id: 'chemistry', name: 'Chemistry', icon: '🧪', color: 'chemistry' },
-  { id: 'english', name: 'English', icon: '📚', color: 'english' },
-  { id: 'zulu', name: 'Zulu', icon: '🌍', color: 'zulu' },
-];
-
-export const SUBJECT_COLORS: Record<Subject, string> = {
-  physics: 'bg-physics',
-  math: 'bg-math',
-  electronics: 'bg-electronics',
-  chemistry: 'bg-chemistry',
-  english: 'bg-english',
-  zulu: 'bg-zulu',
-};
-
-export const SUBJECT_TEXT_COLORS: Record<Subject, string> = {
-  physics: 'text-physics',
-  math: 'text-math',
-  electronics: 'text-electronics',
-  chemistry: 'text-chemistry',
-  english: 'text-english',
-  zulu: 'text-zulu',
-};
 
 export const DAYS_OF_WEEK = [
   { value: 0, label: 'Sun', full: 'Sunday' },
@@ -85,4 +60,27 @@ export const DAYS_OF_WEEK = [
   { value: 4, label: 'Thu', full: 'Thursday' },
   { value: 5, label: 'Fri', full: 'Friday' },
   { value: 6, label: 'Sat', full: 'Saturday' },
+];
+
+// Curated icon set for the subject picker
+export const SUBJECT_ICONS = [
+  'Atom', 'Calculator', 'Wrench', 'FlaskConical', 'BookOpen', 'Globe',
+  'Code', 'Music', 'Palette', 'Dumbbell', 'Brain', 'Microscope',
+  'Languages', 'PenTool', 'Camera', 'Film', 'Heart', 'Leaf',
+  'Rocket', 'Stethoscope', 'Scale', 'Briefcase', 'Hammer', 'Cpu',
+  'Telescope', 'Pi', 'Sigma', 'Pencil', 'Map', 'Lightbulb',
+];
+
+// Curated color palette (HSL components)
+export const SUBJECT_COLORS = [
+  '217 91% 60%', // blue
+  '142 71% 45%', // green
+  '271 91% 65%', // purple
+  '25 95% 53%',  // orange
+  '340 82% 52%', // pink
+  '199 89% 48%', // sky
+  '0 84% 60%',   // red
+  '47 96% 53%',  // yellow
+  '173 80% 40%', // teal
+  '262 83% 58%', // violet
 ];
