@@ -14,27 +14,6 @@ export default function AuthPage() {
   const { user, loading, signIn, signUp } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-
-  const handleGoogleSignIn = async () => {
-    setIsGoogleLoading(true);
-    const result = await lovable.auth.signInWithOAuth('google', {
-      redirect_uri: window.location.origin,
-    });
-
-    if (result.error) {
-      toast({
-        title: 'Google sign-in failed',
-        description: result.error.message,
-        variant: 'destructive',
-      });
-      setIsGoogleLoading(false);
-      return;
-    }
-
-    if (result.redirected) return;
-    setIsGoogleLoading(false);
-  };
 
 
   // Login form state
