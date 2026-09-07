@@ -99,20 +99,21 @@ export default function AuthPage() {
     <div className="min-h-screen bg-background">
       <div className="min-h-screen grid lg:grid-cols-2">
         {/* Hero Section */}
-        <div className="relative flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16 xl:px-24 bg-gradient-to-br from-background to-muted">
+        <div className="relative flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16 xl:px-24 bg-gradient-to-br from-background via-muted/30 to-muted dark:from-background dark:via-primary/[0.03] dark:to-primary/[0.07]">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-primary/5 blur-3xl" />
-            <div className="absolute top-1/2 -right-24 w-96 h-96 rounded-full bg-primary/5 blur-3xl" />
+            <div className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-primary/5 dark:bg-primary/10 blur-3xl" />
+            <div className="absolute top-1/2 -right-24 w-96 h-96 rounded-full bg-primary/5 dark:bg-primary/[0.08] blur-3xl" />
+            <div className="absolute bottom-0 left-1/3 w-80 h-80 rounded-full bg-info/5 dark:bg-info/10 blur-3xl" />
           </div>
 
           <div className="relative z-10 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/80 dark:bg-secondary/40 border border-border dark:border-border/60 backdrop-blur-sm mb-8">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
               <span className="text-xs font-medium text-secondary-foreground">Your personal study companion</span>
             </div>
 
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 rounded-xl bg-primary/10">
+              <div className="p-2.5 rounded-xl bg-primary/10 dark:bg-primary/20">
                 <BookOpen className="h-7 w-7 text-primary" />
               </div>
               <h1 className="text-2xl font-bold tracking-tight text-foreground">StudyTrack</h1>
@@ -120,7 +121,7 @@ export default function AuthPage() {
 
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6">
               Study smarter,{' '}
-              <span className="text-primary">not harder.</span>
+              <span className="text-primary dark:text-primary/90">not harder.</span>
             </h2>
 
             <p className="text-lg text-muted-foreground leading-relaxed mb-8">
@@ -140,7 +141,7 @@ export default function AuthPage() {
             <div className="space-y-3">
               {features.map((feature, index) => (
                 <div key={index} className="flex items-start gap-3">
-                  <div className="mt-0.5 p-1 rounded-full bg-primary/10">
+                  <div className="mt-0.5 p-1 rounded-full bg-primary/10 dark:bg-primary/20">
                     <feature.icon className="h-4 w-4 text-primary" />
                   </div>
                   <span className="text-sm text-muted-foreground">{feature.text}</span>
